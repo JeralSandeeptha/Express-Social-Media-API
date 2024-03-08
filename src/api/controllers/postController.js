@@ -60,7 +60,7 @@ const getAllPosts = async (req, res) => {
 
 const getPost = async (req, res) => {
     try {
-        const post = await PostSchema.findById(req.params.postId).populate('user').exec();
+        const post = await PostSchema.findById(req.params.postId).populate('user', '-password').exec();
         if (post) {
             return res.status(200).json(
                 new SuccessResponse(
