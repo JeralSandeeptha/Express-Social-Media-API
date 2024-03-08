@@ -8,74 +8,42 @@ const logger = require('../../utils/logger');
 const SuccessResponse = require('../../utils/SuccessResponse');
 const ErrorResponse = require('../../utils/ErrorResponse');
 
-const findByUsername = async (username) => {
-    try {
-        const admin = await AdminModel.find({ username: username });
-
-        if(admin) {
-            return true;
-            logger.info("Admin is already exists");
-        }else {
-            return false;
-            logger.info("Admin is not exists");
-        }
-    } catch (error) {
-        logger.error("Admin is exists query was internal server error");
-    }
-}
 const registerAdmin = async (req, res) => {
-    try {
-        const { username, password } = req.body;
-        const admin = await findByUsername(username);
-        if(admin) {
-            logger.info("Admin is already exists");
-        }else {
-            try {
-                const salt = await  bcrypt.genSalt(10);
-                const hashPassword = await bcrypt.hash(password, salt);
+    const { username, password } = req.body;
+        try {
+            const salt = await  bcrypt.genSalt(10);
+            const hashPassword = await bcrypt.hash(password, salt);
 
-                const newUser = new AdminModel({
-                    username: username,
-                    password: hashPassword,
-                });
+            const newUser = new AdminModel({
+                username: username,
+                password: hashPassword,
+            });
 
-                const user = await newUser.save();
+            const user = await newUser.save();
 
-                logger.info("Admin register query was successful");
-                res.status(201).json(
-                    new SuccessResponse(
-                        201,
-                        "Admin register query was successful",
-                        user
-                    )
-                );
-            } catch (error) {
-                logger.error("Admin register query was failed");
-                logger.error(error.message);
-                res.status(500).json(
-                    new ErrorResponse(
-                        500,
-                        "Admin register query was failed",
-                        error.message
-                    )
-                );
-            }
-        }
-    } catch (error) {
-        logger.error("Admin register query was internal server error");
-        logger.error(error.message);
-        return res.status(500).json(
-            new ErrorResponse(
-                500,
-                "Admin register query was internal server error",
-                error.message
-            )
-        );
-    }
+            logger.info("Admin register query was successful");
+            res.status(201).json(
+                new SuccessResponse(
+                    201,
+                    "Admin register query was successful",
+                    user
+                )
+            );
+        } catch (error) {
+            logger.error("Admin register query was failed");
+            logger.error(error.message);
+            res.status(500).json(
+                new ErrorResponse(
+                    500,
+                    "Admin register query was failed",
+                    error.message
+                )
+            );
+        }         
 }
 const loginAdmin = async (req, res) => {
     try {
-        const admin = await AdminModel.findOne({ email: req.body.username });
+        const admin = await AdminModel.findOne({ username: req.body.username });
         if (!admin){ 
             logger.error("Username not found"); 
             return res.status(404).json(
@@ -97,9 +65,9 @@ const loginAdmin = async (req, res) => {
             );
         }
 
-        const { password, ...others } = user._doc;
+        const { password, ...others } = admin._doc;
 
-        const token = jwt.sign({ id: user._id, isAdmin: user.isAdmin }, 'privateKey');
+        const token = jwt.sign({ id: admin._id, isAdmin: admin.isAdmin }, 'privateKey');
 
         return res.status(200).json(
             new SuccessResponse(
@@ -129,11 +97,13 @@ const getAdmin = async (req, res) => {
         const admin = await AdminModel.findById(req.params.adminId);
         if (admin) {
             logger.info("Get admin query was successful");
-            return new SuccessResponse(
-                200,
-                "Get admin query was successful",
-                admin
-            ) 
+            return res.status(200).json(
+                new SuccessResponse(
+                    200,
+                    "Get admin query was successful",
+                    admin
+                ) 
+            );
         }else {
             logger.info("Get admin query was failed");
             return new ErrorResponse(
@@ -157,11 +127,13 @@ const getAdmin = async (req, res) => {
 const getAllAdmins = async (req, res) => {
     try {
         const admins = await AdminModel.find();
-        return new SuccessResponse(
-            200,
-            "Get all admins query was successful",
-            admins
-        ) 
+        return res.status(200).json(
+            new SuccessResponse(
+                200,
+                "Get all admins query was successful",
+                admins
+            ) 
+        );
     } catch (error) {
         logger.error("Get all admins query was internal server error");
         logger.error(error.message);
@@ -180,18 +152,22 @@ const updateAdmin = async (req, res) => {
         if (admin) {
             const updatedAdmin = await AdminModel.findByIdAndUpdate(req.params.adminId, { $set: req.body }, { new: true });
             logger.info("Update admin query was successful");
-            return new SuccessResponse(
-                200,
-                "Update admin query was successful",
-                updatedAdmin
-            ) 
+            return res.status(200).json(
+                new SuccessResponse(
+                    200,
+                    "Update admin query was successful",
+                    updatedAdmin
+                ) 
+            );
         }else {
             logger.info("Update admin query was failed");
-            return new ErrorResponse(
-                200,
-                "Update admin query was faild",
-                "Admin id not found"
-            ) 
+            return res.status(400).json(
+                new ErrorResponse(
+                    200,
+                    "Update admin query was faild",
+                    "Admin id not found"
+                ) 
+            );
         }
     } catch (error) {
         logger.error("Update admin query was internal server error");
@@ -211,17 +187,21 @@ const deleteAdmin = async (req, res) => {
         if (admin) {
             await AdminModel.findByIdAndDelete(req.params.adminId);
             logger.info("Delete admin query was successful");
-            return new SuccessResponse(
-                200,
-                "Delete admin query was successful",
-            ) 
+            return res.status(204).json(
+                new SuccessResponse(
+                    200,
+                    "Delete admin query was successful",
+                ) 
+            );
         }else {
             logger.info("Delete admin query was failed");
-            return new ErrorResponse(
-                200,
-                "Get admin query was faild",
-                "Admin id not found"
-            ) 
+            return res.status(400).json(
+                new ErrorResponse(
+                    200,
+                    "Get admin query was faild",
+                    "Admin id not found"
+                ) 
+            );
         }
     } catch (error) {
         logger.error("Delete admin query was internal server error");

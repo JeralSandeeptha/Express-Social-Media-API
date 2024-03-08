@@ -11,7 +11,7 @@ const {
 const router = express.Router();
 
 router.post('/', registerAdmin);
-router.post('/', loginAdmin);
+router.post('/login', loginAdmin);
 router.get('/', getAllAdmins);
 router.get('/:adminId', getAdmin);
 router.put('/:adminId', updateAdmin);
