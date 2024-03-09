@@ -3,6 +3,7 @@ const ErrorResponse = require('../../utils/ErrorResponse');
 const SuccessResponse = require('../../utils/SuccessResponse');
 
 const PostSchema = require('../models/Post');
+const UserSchema = require('../models/User');
 
 const createPost = async (req, res) => {
     try {
@@ -13,12 +14,21 @@ const createPost = async (req, res) => {
             user: user
         });
         const savedPost = await newPost.save();
-        logger.info("Create post internal server error");
+        logger.info("Create post query was successful");
+        const updatedUser = await UserSchema.findByIdAndUpdate(
+            user,
+            { $push: { posts: savedPost._id } },
+            { new: true }
+        );
+        logger.info("Post added to the user's posts list");
         return res.status(201).json(
             new SuccessResponse(
                 200,
                 "Create post query was successful",
-                savedPost
+                {
+                    savedPost: savedPost,
+                    updatedUser: updatedUser 
+                }
             )
         );
     } catch (error) {
@@ -132,10 +142,16 @@ const updatePost = async (req, res) => {
 
 const deletePost = async (req, res) => {
     try {
-        const post = await PostSchema.get(req.params.postId);
+        const post = await PostSchema.findById(req.params.postId);
         if (post) {
-            await PostSchema.delete(req.params.postId);
+            await PostSchema.findByIdAndDelete(req.params.postId);
             logger.info("Delete post query was successful");
+            await UserSchema.findByIdAndUpdate(
+                req.body.userId,
+                { $pull: { posts: req.params.postId } },
+                { new: true }
+            );
+            logger.info("Post removed from user's posts list");
             return res.status(204).json(
                 new SuccessResponse(
                     200,
