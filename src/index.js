@@ -8,6 +8,7 @@ const bodyParser = require('body-parser');
 const adminRoutes = require('./api/routes/adminRoutes');
 const userRoutes = require('./api/routes/userRoutes');
 const postRoutes = require('./api/routes/postRoutes');
+const commentRoutes = require('./api/routes/commentRoutes');
 
 const logger = require('./utils/logger');
 
@@ -19,6 +20,7 @@ app.use(express.json({ limit: '100mb' }));
 app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/user', userRoutes);
 app.use('/api/v1/post', postRoutes);
+app.use('/api/v1/comment', commentRoutes);
 
 const port = process.env.PORT || 3000;
 
