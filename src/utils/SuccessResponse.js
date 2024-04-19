@@ -1,4 +1,5 @@
 class SuccessResponse {
+    
     constructor(statusCode, message, data) {
         this.statusCode = statusCode;
         this.message = message;
@@ -7,7 +8,7 @@ class SuccessResponse {
 
     //this code is for check sonarcube status
     static defaultSuccess() {
-        return new SuccessResponse(200, "Success", null);
+        return new SuccessResponse(200, "Success", "Success");
     }
 }
 
