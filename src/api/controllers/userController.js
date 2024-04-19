@@ -13,11 +13,11 @@ const findByUsername = async (username) => {
         const admin = await UserSchema.find({ username: username });
 
         if(admin) {
-            logger.info("User is already exists");
             return true;
+            logger.info("User is already exists");
         }else {
-            logger.info("User is not exists");
             return false;
+            logger.info("User is not exists");
         }
     } catch (error) {
         logger.error("User is exists query was internal server error");
