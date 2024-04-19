@@ -153,7 +153,7 @@ const deleteComment = async (req, res) => {
         }else {
             await CommentSchema.findByIdAndDelete(req.params.commentId);
             logger.info("Delete comment query was successful");
-            const updatedPost = await PostSchema.findByIdAndUpdate(
+            await PostSchema.findByIdAndUpdate(
                 postId,
                 { $pull: { comments: req.params.commentId } },
                 { new : true}
