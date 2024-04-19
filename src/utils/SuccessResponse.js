@@ -4,6 +4,11 @@ class SuccessResponse {
         this.message = message;
         this.data = data;
     }
+
+    //this code is for check sonarcube status
+    static defaultSuccess() {
+        return new SuccessResponse(200, "Success", null);
+    }
 }
 
 module.exports = SuccessResponse;
