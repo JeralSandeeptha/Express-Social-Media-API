@@ -43,7 +43,7 @@ const registerAdmin = async (req, res) => {
 }
 const loginAdmin = async (req, res) => {
     try {
-        const admin = await AdminModel.findOne({ username: req.body.username });
+        const admin = await AdminModel.findOne({ username: req.body.username }).exec();
         if (!admin){ 
             logger.error("Username not found"); 
             return res.status(404).json(
